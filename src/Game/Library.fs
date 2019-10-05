@@ -1,7 +1,7 @@
 ﻿module Game.Game
 
 
-type wallType =
+type WallType =
     | NS
     | EW
     | NE
@@ -10,36 +10,36 @@ type wallType =
     | SW
     | Corner
 
-type direction =
+type Direction =
 | North
 | South
 | East
 | West
 
-type env =
-   | Wall of wallType
+type Env =
+   | Wall of WallType
    | Floor
    | Trap
    | Player
    
-type cast = {
+type Cast = {
     spell: string
-    direction: direction
+    direction: Direction
 }
-type command =
-    | Move of direction
+type Command =
+    | Move of Direction
     | Refresh
-    | Cast of cast
+    | Cast of Cast
 
-type location =
+type Location =
     {
         x: int
         y: int
     }
-type state =
+type State =
     {
         board: string
-        playerLocation: location
+        playerLocation: Location
     }
 
 let envToString e =
@@ -61,6 +61,6 @@ let rowToString = List.fold (fun r e -> r + envToString e) ""
 
 let floorToString = List.fold (fun f r -> f + rowToString r + "\n") ""
 
-let rowToStringList = List.map (fun e -> envToString e)
+let rowToStringList = List.map envToString
 
 let floorToStringLists = List.map rowToStringList

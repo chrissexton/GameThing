@@ -6,6 +6,8 @@ open Microsoft.AspNetCore.Builder
 open Microsoft.AspNetCore.Cors.Infrastructure
 open Microsoft.AspNetCore.Hosting
 open Microsoft.Extensions.Logging
+open Microsoft.AspNetCore.Http
+open FSharp.Control.Tasks.V2.ContextInsensitive
 open Microsoft.Extensions.DependencyInjection
 open Giraffe
 
@@ -17,7 +19,7 @@ open Game.Game
 
 type Message =
     {
-        Text : string
+        Text: string
     }
 
 // ---------------------------------
@@ -30,36 +32,52 @@ module Views =
     let layout (content: XmlNode list) =
         html [] [
             head [] [
-                title []  [ encodedText "Server" ]
-                link [ _rel  "stylesheet"
+                title [] [ encodedText "Server" ]
+                link [ _rel "stylesheet"
                        _type "text/css"
                        _href "/main.css" ]
+                script [ _src "//cdnjs.cloudflare.com/ajax/libs/rot.js/0.6.0/rot.js" ] []
+                script [ _src "//unpkg.com/vue" ] []
+                script [ _src "//unpkg.com/axios/dist/axios.min.js" ] []
+                script [ _src "/main.js"; _async ] []
             ]
             body [] content
         ]
 
-    let partial () =
-        h1 [] [ encodedText "Server" ]
+    let partial() =
+        h1 [] [ encodedText "Dis my dumb game" ]
 
-    let index (model : Message) =
+    let display() =
+        div [ _id "game" ] []
+
+    let index () =
         [
             partial()
-            pre [] [ encodedText model.Text ]
+            display()
         ] |> layout
 
 // ---------------------------------
 // Web app
 // ---------------------------------
 
-let indexHandler (name : string) =
-    let floor = [
-        [ Wall Corner; Wall EW; Wall Corner ];
-        [ Wall NS; Floor; Wall NS ];
-        [ Wall Corner; Wall EW; Wall Corner ]
-    ]
-    let model     = { Text = floorToString floor }
-    let view      = Views.index model
+let indexHandler (name: string) =
+    let view = Views.index ()
     htmlView view
+
+type mapResponse =
+    {
+        view: string
+    }
+
+let mapHandler() =
+    let floor = [
+        [ Wall Corner; Wall EW; Wall EW; Wall EW; Wall Corner ];
+        [ Wall NS; Floor; Floor; Floor; Wall NS ];
+        [ Wall NS; Floor; Player; Floor; Wall NS ];
+        [ Wall NS; Floor; Floor; Floor; Wall NS ];
+        [ Wall Corner; Wall EW; Wall EW; Wall EW; Wall Corner ]
+    ]
+    json (floorToString floor)
 
 let webApp =
     choose [
@@ -67,6 +85,7 @@ let webApp =
             choose [
                 route "/" >=> indexHandler "world"
                 routef "/hello/%s" indexHandler
+                route "/map" >=> mapHandler()
             ]
         setStatusCode 404 >=> text "Not Found" ]
 
@@ -74,7 +93,7 @@ let webApp =
 // Error handler
 // ---------------------------------
 
-let errorHandler (ex : Exception) (logger : ILogger) =
+let errorHandler (ex: Exception) (logger: ILogger) =
     logger.LogError(ex, "An unhandled exception has occurred while executing the request.")
     clearResponse >=> setStatusCode 500 >=> text ex.Message
 
@@ -82,27 +101,27 @@ let errorHandler (ex : Exception) (logger : ILogger) =
 // Config and Main
 // ---------------------------------
 
-let configureCors (builder : CorsPolicyBuilder) =
+let configureCors (builder: CorsPolicyBuilder) =
     builder.WithOrigins("http://localhost:8080")
            .AllowAnyMethod()
            .AllowAnyHeader()
            |> ignore
 
-let configureApp (app : IApplicationBuilder) =
+let configureApp (app: IApplicationBuilder) =
     let env = app.ApplicationServices.GetService<IHostingEnvironment>()
     (match env.IsDevelopment() with
-    | true  -> app.UseDeveloperExceptionPage()
+    | true -> app.UseDeveloperExceptionPage()
     | false -> app.UseGiraffeErrorHandler errorHandler)
         .UseHttpsRedirection()
         .UseCors(configureCors)
         .UseStaticFiles()
         .UseGiraffe(webApp)
 
-let configureServices (services : IServiceCollection) =
-    services.AddCors()    |> ignore
+let configureServices (services: IServiceCollection) =
+    services.AddCors() |> ignore
     services.AddGiraffe() |> ignore
 
-let configureLogging (builder : ILoggingBuilder) =
+let configureLogging (builder: ILoggingBuilder) =
     builder.AddFilter(fun l -> l.Equals LogLevel.Error)
            .AddConsole()
            .AddDebug() |> ignore
@@ -110,7 +129,7 @@ let configureLogging (builder : ILoggingBuilder) =
 [<EntryPoint>]
 let main _ =
     let contentRoot = Directory.GetCurrentDirectory()
-    let webRoot     = Path.Combine(contentRoot, "WebRoot")
+    let webRoot = Path.Combine(contentRoot, "WebRoot")
     WebHostBuilder()
         .UseKestrel()
         .UseContentRoot(contentRoot)

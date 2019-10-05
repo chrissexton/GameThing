@@ -31,17 +31,11 @@ let mapHandler() =
         [ Wall NS; Floor; Floor; Floor; Wall NS ];
         [ Wall Corner; Wall EW; Wall EW; Wall EW; Wall Corner ]
     ]
-    let state = {
-        board = floorToString floor
-        playerLocation = { x = 1; y = 1 }
-    }
-    json state
-
-type Direction = string
+    json Current.JSON
 
 let moveHandler (next: HttpFunc) (ctx: HttpContext) =
     task {
-        let! direction = ctx.BindJsonAsync<Direction>()
+        let! cmd = ctx.BindJsonAsync<Command>()
         return! (mapHandler()) next ctx
     }
 

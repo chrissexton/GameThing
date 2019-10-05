@@ -29,6 +29,7 @@ module Views =
     let display() =
         div [ _id "app" ] [
             div [ _id "game" ] []
+            button [ _id "south"; _value "south" ] [ Text "South" ]
         ]
 
     let index() =

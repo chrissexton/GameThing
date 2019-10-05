@@ -22,6 +22,7 @@ open Game.Game
 let moveHandler (next: HttpFunc) (ctx: HttpContext) =
     task {
         let! cmd = ctx.BindJsonAsync<Command>()
+        printfn "%O" cmd |> ignore
         Current.cmd cmd |> ignore
         return! (json Current.JSON) next ctx
     }
@@ -32,6 +33,7 @@ let webApp =
             choose [
                 route "/" >=> htmlFile "WebRoot/index.html"
                 route "/map" >=> json Current.JSON
+                route "/test" >=> json (Move South)
             ]
         POST >=>
             choose [

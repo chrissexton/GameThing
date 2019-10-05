@@ -9,7 +9,12 @@
         <h1>Dis my dumb game</h1>
         <div id="app">
             <div id="game"></div>
-            <button id="south" v-on:click="sendCommand('south')">South</button>
+            <div>
+                <button id="north" v-on:click="sendCommand('North')">North</button>
+                <button id="south" v-on:click="sendCommand('South')">South</button>
+                <button id="east" v-on:click="sendCommand('East')">East</button>
+                <button id="west" v-on:click="sendCommand('West')">West</button>
+            </div>
         </div>
     </body>
 </html>

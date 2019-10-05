@@ -1,30 +1,43 @@
 let app = new Vue({
-    el: "#game" ,
+    el: "#app",
     data: {
         display: null,
-        board: [],
+        state: {board: ""},
         err: ""
     },
     mounted() {
         let options = {
-            forceSquareRatio:true
+            forceSquareRatio: true
         };
         this.display = new ROT.Display(options);
-        document.getElementById("game").appendChild(this.display.getContainer());
+        document.getElementById("game").replaceWith(this.display.getContainer());
         this.getData();
     },
     methods: {
-        draw: function(board) {
+        draw: function (board) {
             console.log("drawing board:\n", this.board);
-            // let str = "Using a regular grid\n@....%b{blue}#%b{}##.%b{red}.%b{}.$$$";
-            this.display.drawText(0,  0, this.board);
+            this.display.drawText(0, 0, this.state.board);
+            if (this.state.playerLocation) {
+                this.display.drawText(this.state.playerLocation.x, this.state.playerLocation.y, "@")
+            }
         },
-        getData: function() {
+        getData: function () {
             axios.get("/map")
                 .then(resp => {
                     console.log("Got data:\n", resp);
-                    this.board = resp.data;
+                    this.state = resp.data;
                     this.draw();
+                })
+                .catch(err => this.err = err);
+        },
+        // sendCommand will be wired to the various keybinds
+        // each binding should send the game command expected
+        sendCommand: function (cmd) {
+            axios.post("/cmd")
+                .then(resp => {
+                    console.log("Got data from cmd:\n", resp)
+                    this.board = resp.data;
+                    this.draw()
                 })
                 .catch(err => this.err = err);
         }

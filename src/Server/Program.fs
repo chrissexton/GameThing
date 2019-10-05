@@ -1,5 +1,7 @@
 module Server.App
 
+open Views
+
 open System
 open System.IO
 open Microsoft.AspNetCore.Builder
@@ -7,77 +9,41 @@ open Microsoft.AspNetCore.Cors.Infrastructure
 open Microsoft.AspNetCore.Hosting
 open Microsoft.Extensions.Logging
 open Microsoft.AspNetCore.Http
-open FSharp.Control.Tasks.V2.ContextInsensitive
 open Microsoft.Extensions.DependencyInjection
+open FSharp.Control.Tasks.V2.ContextInsensitive
 open Giraffe
 
 open Game.Game
-
-// ---------------------------------
-// Models
-// ---------------------------------
-
-type Message =
-    {
-        Text: string
-    }
-
-// ---------------------------------
-// Views
-// ---------------------------------
-
-module Views =
-    open GiraffeViewEngine
-
-    let layout (content: XmlNode list) =
-        html [] [
-            head [] [
-                title [] [ encodedText "Server" ]
-                link [ _rel "stylesheet"
-                       _type "text/css"
-                       _href "/main.css" ]
-                script [ _src "//cdnjs.cloudflare.com/ajax/libs/rot.js/0.6.0/rot.js" ] []
-                script [ _src "//unpkg.com/vue" ] []
-                script [ _src "//unpkg.com/axios/dist/axios.min.js" ] []
-                script [ _src "/main.js"; _async ] []
-            ]
-            body [] content
-        ]
-
-    let partial() =
-        h1 [] [ encodedText "Dis my dumb game" ]
-
-    let display() =
-        div [ _id "game" ] []
-
-    let index () =
-        [
-            partial()
-            display()
-        ] |> layout
 
 // ---------------------------------
 // Web app
 // ---------------------------------
 
 let indexHandler (name: string) =
-    let view = Views.index ()
+    let view = Views.index()
     htmlView view
-
-type mapResponse =
-    {
-        view: string
-    }
 
 let mapHandler() =
     let floor = [
         [ Wall Corner; Wall EW; Wall EW; Wall EW; Wall Corner ];
         [ Wall NS; Floor; Floor; Floor; Wall NS ];
-        [ Wall NS; Floor; Player; Floor; Wall NS ];
+        [ Wall NS; Floor; Floor; Floor; Wall NS ];
         [ Wall NS; Floor; Floor; Floor; Wall NS ];
         [ Wall Corner; Wall EW; Wall EW; Wall EW; Wall Corner ]
     ]
-    json (floorToString floor)
+    let state = {
+        board = floorToString floor
+        playerLocation = { x = 1; y = 1 }
+    }
+    json state
+
+type Direction = string
+
+let moveHandler (next: HttpFunc) (ctx: HttpContext) =
+    task {
+        let! direction = ctx.BindJsonAsync<Direction>()
+        return! (mapHandler()) next ctx
+    }
 
 let webApp =
     choose [
@@ -86,6 +52,10 @@ let webApp =
                 route "/" >=> indexHandler "world"
                 routef "/hello/%s" indexHandler
                 route "/map" >=> mapHandler()
+            ]
+        POST >=>
+            choose [
+                route "/move" >=> moveHandler
             ]
         setStatusCode 404 >=> text "Not Found" ]
 

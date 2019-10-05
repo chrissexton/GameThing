@@ -14,7 +14,26 @@ type env =
    | Floor
    | Trap
    | Player
+   
+type cast = {
+    spell: string
+    direction: direction
+}
+type command =
+    | Move of direction
+    | Refresh
+    | Cast of cast
 
+type location =
+    {
+        x: int
+        y: int
+    }
+type state =
+    {
+        board: string
+        playerLocation: location
+    }
 
 let envToString e =
     match e with

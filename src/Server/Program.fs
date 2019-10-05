@@ -19,37 +19,23 @@ open Game.Game
 // Web app
 // ---------------------------------
 
-let indexHandler (name: string) =
-    let view = Views.index()
-    htmlView view
-
-let mapHandler() =
-    let floor = [
-        [ Wall Corner; Wall EW; Wall EW; Wall EW; Wall Corner ];
-        [ Wall NS; Floor; Floor; Floor; Wall NS ];
-        [ Wall NS; Floor; Floor; Floor; Wall NS ];
-        [ Wall NS; Floor; Floor; Floor; Wall NS ];
-        [ Wall Corner; Wall EW; Wall EW; Wall EW; Wall Corner ]
-    ]
-    json Current.JSON
-
 let moveHandler (next: HttpFunc) (ctx: HttpContext) =
     task {
         let! cmd = ctx.BindJsonAsync<Command>()
-        return! (mapHandler()) next ctx
+        Current.cmd cmd |> ignore
+        return! (json Current.JSON) next ctx
     }
 
 let webApp =
     choose [
         GET >=>
             choose [
-                route "/" >=> indexHandler "world"
-                routef "/hello/%s" indexHandler
-                route "/map" >=> mapHandler()
+                route "/" >=> htmlFile "WebRoot/index.html"
+                route "/map" >=> json Current.JSON
             ]
         POST >=>
             choose [
-                route "/move" >=> moveHandler
+                route "/cmd" >=> moveHandler
             ]
         setStatusCode 404 >=> text "Not Found" ]
 

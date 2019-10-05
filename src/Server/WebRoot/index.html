@@ -1,0 +1,15 @@
+<html>
+    <head>
+        <script src="//cdnjs.cloudflare.com/ajax/libs/rot.js/0.6.0/rot.js"></script>
+        <script src="//unpkg.com/vue"></script>
+        <script src="//unpkg.com/axios/dist/axios.min.js"></script>
+        <script src="/main.js" async></script>
+    </head>
+    <body>
+        <h1>Dis my dumb game</h1>
+        <div id="app">
+            <div id="game"></div>
+            <button id="south" v-on:click="sendCommand('south')">South</button>
+        </div>
+    </body>
+</html>

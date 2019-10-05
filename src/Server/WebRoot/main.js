@@ -32,8 +32,11 @@ let app = new Vue({
         },
         // sendCommand will be wired to the various keybinds
         // each binding should send the game command expected
-        sendCommand: function (cmd) {
-            axios.post("/cmd")
+        sendCommand: function (direction) {
+            if (direction == 'south') {
+                direction = {Case: 'South'}
+            }
+            axios.post("/cmd", direction)
                 .then(resp => {
                     console.log("Got data from cmd:\n", resp)
                     this.board = resp.data;

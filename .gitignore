@@ -71,6 +71,7 @@ Sessionx.vim
 .netrwhist
 # Auto-generated tag files
 tags
+.ionide*
 # Persistent undo
 [._]*.un~
 

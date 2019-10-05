@@ -20,13 +20,13 @@ type Env =
     | Floor
     | Trap
     | Player
-    
+
 type Board = Env list list
-   
+
 type Cast = {
     spell: string
     direction: Direction
-}
+ }
 type Command =
     | Move of Direction
     | Refresh
@@ -76,20 +76,22 @@ type StateJSON =
     }
 
 type State(board: Board) =
+    let mutable _playerLocation = { x = 1; y = 1 }
     member this.boardString = floorToString board
-    member this.playerLocation = { x = 1; y = 1 }
+    member this.playerLocation = _playerLocation
     member this.JSON = {
         board = this.boardString
-        playerLocation = this.playerLocation
+        playerLocation = _playerLocation
     }
     member this.cmd cmd =
         match cmd with
             | Move d ->
                 match d with
-                    | North -> this.playerLocation = { x = this.playerLocation.x + 1; y = this.playerLocation.y }
-                    | South -> this.playerLocation = { x = this.playerLocation.x - 1; y = this.playerLocation.y }
-                    | East -> this.playerLocation = { x = this.playerLocation.x; y = this.playerLocation.y + 1 }
-                    | West -> this.playerLocation = { x = this.playerLocation.x; y = this.playerLocation.y - 1 }
-            | _ -> true
+                    // Note that the coordinate system is pinned to NW
+                    | North -> _playerLocation <- { x = _playerLocation.x; y = _playerLocation.y - 1 }
+                    | South -> _playerLocation <- { x = _playerLocation.x; y = _playerLocation.y + 1 }
+                    | East -> _playerLocation <- { x = _playerLocation.x + 1; y = _playerLocation.y }
+                    | West -> _playerLocation <- { x = _playerLocation.x - 1; y = _playerLocation.y }
+            | _ -> ()
 
 let mutable Current = State(newBoard())

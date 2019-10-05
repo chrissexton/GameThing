@@ -24,8 +24,14 @@ $ ./build.sh
 
 After a successful build you can start the web application by executing the following command in your terminal:
 
+### Windows
+
+dotnet run --project .\src\Server\
+
+### Linux / macOS
 ```
 dotnet run src/Server
 ```
+
 
 After the application has started visit [http://localhost:5000](http://localhost:5000) in your preferred browser.

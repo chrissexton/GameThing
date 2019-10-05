@@ -1,6 +1,7 @@
 ﻿module Game.Game
 
-type direction =
+
+type wallType =
     | NS
     | EW
     | NE
@@ -9,8 +10,14 @@ type direction =
     | SW
     | Corner
 
+type direction =
+| North
+| South
+| East
+| West
+
 type env =
-   | Wall of direction
+   | Wall of wallType
    | Floor
    | Trap
    | Player

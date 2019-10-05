@@ -10,10 +10,12 @@
         <div id="app">
             <div id="game"></div>
             <div>
-                <button id="north" v-on:click="sendCommand('North')">North</button>
-                <button id="south" v-on:click="sendCommand('South')">South</button>
-                <button id="east" v-on:click="sendCommand('East')">East</button>
-                <button id="west" v-on:click="sendCommand('West')">West</button>
+                <select v-model="keymap">
+                    <option value="dvorak" selected>dvorak</option>
+                    <option value="qwerty">qwerty</option>
+                    <option value="g4m3r">g4m3r</option>
+                    <option value="n00b">n00b</option>
+                </select>
             </div>
         </div>
     </body>

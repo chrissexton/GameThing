@@ -1,9 +1,37 @@
+let keymaps = {
+    "dvorak": {
+        "t": "North",
+        "h": "South",
+        "n": "East",
+        "d": "West"
+    },
+    "qwerty": {
+        "k": "North",
+        "j": "South",
+        "l": "East",
+        "h": "West"
+    },
+    "g4m3r": {
+        "w": "North",
+        "s": "South",
+        "d": "East",
+        "a": "West"
+    },
+    "n00b": {
+        "ArrowUp": "North",
+        "ArrowDown": "South",
+        "ArrowRight": "East",
+        "ArrowLeft": "West"
+    }
+};
+
 let app = new Vue({
     el: "#app",
     data: {
         display: null,
         state: {board: ""},
-        err: ""
+        err: "",
+        keymap: "dvorak"
     },
     mounted() {
         let options = {
@@ -11,9 +39,14 @@ let app = new Vue({
         };
         this.display = new ROT.Display(options);
         document.getElementById("game").replaceWith(this.display.getContainer());
+        document.addEventListener("keydown", this.keyPress);
         this.getData();
     },
     methods: {
+        keyPress: function (e) {
+            let direction = keymaps[this.keymap][e.key];
+            this.sendCommand(direction);
+        },
         draw: function (board) {
             console.log("drawing board:\n", this.board);
             this.display.drawText(0, 0, this.state.board);

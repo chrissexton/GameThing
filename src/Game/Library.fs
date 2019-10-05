@@ -11,16 +11,16 @@ type WallType =
     | Corner
 
 type Direction =
-| North
-| South
-| East
-| West
+    | North
+    | South
+    | East
+    | West
 
 type Env =
-   | Wall of WallType
-   | Floor
-   | Trap
-   | Player
+    | Wall of WallType
+    | Floor
+    | Trap
+    | Player
    
 type Cast = {
     spell: string

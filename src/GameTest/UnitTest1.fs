@@ -15,5 +15,5 @@ let TestFloorToString() =
         [ Wall Corner; Wall EW; Wall Corner ]
     ]
     let actual = floorToString floor
-    let expected = "+-+\n|#|\n+-+\n"
+    let expected = "+-+\n|.|\n+-+\n"
     Assert.AreEqual(actual, expected)
